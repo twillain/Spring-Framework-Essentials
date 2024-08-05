@@ -1,5 +1,10 @@
 package rewards.internal.restaurant;
 
+import javax.persistence.Entity;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.Repository;
+
 /**
  * Loads restaurant aggregates. Called by the reward network to find and reconstitute Restaurant entities from an
  * external form such as a set of RDMS rows.
@@ -9,7 +14,8 @@ package rewards.internal.restaurant;
 // TODO-06: Alter this interface to extend a proper Spring Data interface.
 // - The method name also needs refactoring (renaming) to use Spring Data finder
 //   naming conventions so Spring Data will implement it automatically for you.
-public interface RestaurantRepository {
+
+public interface RestaurantRepository extends Repository<Restaurant, Long>{
 
 	/**
 	 * Load a Restaurant entity by its merchant number.
@@ -17,5 +23,5 @@ public interface RestaurantRepository {
 	 * @return the restaurant
 	 */
 	// To refactor: right click on the method name -> Refactor -> Rename
-	public Restaurant findByMerchantNumber(String merchantNumber);
+	public Restaurant findByNumber(String merchantNumber);
 }

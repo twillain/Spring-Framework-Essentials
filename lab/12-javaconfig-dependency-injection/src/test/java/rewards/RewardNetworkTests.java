@@ -1,9 +1,12 @@
-package rewards.internal;
+package rewards;
 
 import common.money.MonetaryAmount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+
 import rewards.AccountContribution;
 import rewards.Dining;
 import rewards.RewardConfirmation;
@@ -14,42 +17,21 @@ import rewards.internal.reward.RewardRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Unit tests for the RewardNetworkImpl application logic.
- * Configures the implementation with stub repositories
- * containing dummy data for fast in-memory testing without
- * the overhead of an external data source.
- * 
- * Besides helping catch bugs early, tests are a great way
- * for a new developer to learn an API as he or she can see the
- * API in action. Tests also help validate a design as they
- * are a measure for how easy it is to use your code.
- */
-public class RewardNetworkImplTests {
+public class RewardNetworkTests {
 
-	/**
-	 * The object being tested.
-	 */
-	private RewardNetworkImpl rewardNetwork;
+    private RewardNetwork rewardNetwork;
 
-	// TODO-09: Review the test setup
-	@BeforeEach
-	public void setUp() throws Exception {
-		// Create stubs to facilitate fast in-memory testing with
-		// dummy data and no external dependencies
-		AccountRepository accountRepo = new StubAccountRepository();
-		RestaurantRepository restaurantRepo = new StubRestaurantRepository();
-		RewardRepository rewardRepo = new StubRewardRepository();
+    @BeforeEach
+    public void setUp() throws Exception{
 
-		// Setup the object being tested by handing what it needs to work
-		rewardNetwork = new RewardNetworkImpl(accountRepo, restaurantRepo, rewardRepo);
-	}
+        ApplicationContext context = SpringApplication.run(TestInfrastructureConfig.class);
 
-	// TODO-10: Test RewardNetworkImpl class
-	// - Remove the @Disabled annotation below.
-	// - Run this JUnit test. Verify it passes.
-	@Test
-	public void testRewardForDining() {
+        rewardNetwork = context.getBean(RewardNetwork.class);
+
+    }
+
+    @Test
+    public void testRewardForDining() {
 		// create a new dining of 100.00 charged to credit card '1234123412341234' by merchant '123457890' as test input
 		Dining dining = Dining.createDining("100.00", "1234123412341234", "1234567890");
 
@@ -77,4 +59,5 @@ public class RewardNetworkImplTests {
 		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Annabelle").getAmount());
 		assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Corgan").getAmount());
 	}
+
 }

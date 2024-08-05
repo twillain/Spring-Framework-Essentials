@@ -22,14 +22,13 @@ public class AccountClientTests {
 	private Random random = new Random();
 	
 	@Test
-	@Disabled
 	public void listAccounts() {
 		// TODO-03: Run this test
 		// - Remove the @Disabled on this test method.
 		// - Then, use the restTemplate to retrieve an array containing all Account instances.
 		// - Use BASE_URL to help define the URL you need: BASE_URL + "/..."
 		// - Run the test and ensure that it passes.
-		Account[] accounts = null; // Modify this line to use the restTemplate
+		Account[] accounts = restTemplate.getForObject(BASE_URL + "/accounts", Account[].class); // Modify this line to use the restTemplate
 		
 		assertNotNull(accounts);
 		assertTrue(accounts.length >= 21);
@@ -39,13 +38,12 @@ public class AccountClientTests {
 	}
 	
 	@Test
-	@Disabled
 	public void getAccount() {
 		// TODO-05: Run this test
 		// - Remove the @Disabled on this test method.
 		// - Then, use the restTemplate to retrieve the Account with id 0 using a URI template
 		// - Run the test and ensure that it passes.
-		Account account = null; // Modify this line to use the restTemplate
+		Account account = restTemplate.getForObject(BASE_URL + "/accounts/{id}", Account.class, 0); // Modify this line to use the restTemplate
 		
 		assertNotNull(account);
 		assertEquals("Keith and Keri Donald", account.getName());
@@ -54,11 +52,11 @@ public class AccountClientTests {
 	}
 	
 	@Test
-	@Disabled
 	public void createAccount() {
 		// Use a unique number to avoid conflicts
 		String number = String.format("12345%4d", random.nextInt(10000));
-		Account account = new Account(number, "John Doe");
+		//Account account = new Account(number, "John Doe");
+		Account account = new Account("123123123","John Doe");
 		account.addBeneficiary("Jane Doe");
 		
 		//	TODO-08: Create a new Account
@@ -68,12 +66,13 @@ public class AccountClientTests {
 		//  - Note that 'RestTemplate' has two methods for this.
 		//  - Use the one that returns the location of the newly created
 		//    resource and assign that to a variable.
-		URI newAccountLocation = null; // Modify this line to use the restTemplate
+
+		URI newAccountLocation = restTemplate.postForLocation(BASE_URL + "/accounts", account); // Modify this line to use the restTemplate
 
 		//	TODO-09: Retrieve the Account you just created from
 		//	         the location that was returned.
 		//	- Run this test, then. Make sure the test succeeds.
-		Account retrievedAccount = null; // Modify this line to use the restTemplate
+		Account retrievedAccount = restTemplate.getForObject(newAccountLocation, Account.class); // Modify this line to use the restTemplate
 		
 		assertEquals(account.getNumber(), retrievedAccount.getNumber());
 		
@@ -85,7 +84,6 @@ public class AccountClientTests {
 	}
 	
 	@Test
-	@Disabled
 	public void addAndDeleteBeneficiary() {
 		// perform both add and delete to avoid issues with side effects
 		
@@ -94,15 +92,19 @@ public class AccountClientTests {
 		// - Create a new Beneficiary called "David" for the account with id 1
 		//	 (POST the String "David" to the "/accounts/{accountId}/beneficiaries" URL).
 		// - Store the returned location URI in a variable.
+
+		String location = "/accounts/{accountId}/beneficiaries";
+
+		URI newBeneficiaryLocation = restTemplate.postForLocation(BASE_URL + location , "David", 1);
 		
 		// TODO-14: Retrieve the Beneficiary you just created from the location that was returned
-		Beneficiary newBeneficiary = null; // Modify this line to use the restTemplate
+		Beneficiary newBeneficiary = restTemplate.getForObject(newBeneficiaryLocation, Beneficiary.class);
 		
 		assertNotNull(newBeneficiary);
 		assertEquals("David", newBeneficiary.getName());
 		
 		// TODO-15: Delete the newly created Beneficiary
-
+		restTemplate.delete(newBeneficiaryLocation);
 
 		HttpClientErrorException httpClientErrorException = assertThrows(HttpClientErrorException.class, () -> {
 			System.out.println("You SHOULD get the exception \"No such beneficiary with name 'David'\" in the server.");
@@ -111,6 +113,8 @@ public class AccountClientTests {
 			// - Run this test, then. It should pass because we expect a 404 Not Found
 			//   If not, it is likely your delete in the previous step
 			//   was not successful.
+
+			restTemplate.getForObject(newBeneficiaryLocation, Beneficiary.class);
 
 		});
 		assertEquals(HttpStatus.NOT_FOUND, httpClientErrorException.getStatusCode());

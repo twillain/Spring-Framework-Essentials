@@ -17,6 +17,12 @@
         <start-class>accounts.AccountsApplication</start-class>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- This dependency bring in the common classes -->
         <!-- such as Percentage, MonetaryAmount         -->
         <dependency>
